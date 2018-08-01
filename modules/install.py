@@ -387,9 +387,9 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     if server == "kong":  # separate kong log storage needed
         ssh = config.get('KONG', 'SSH')
 
-        cmd = "docker run -d -p {4}:22 --net=mynet --hostname={0} " \
-              "-v {2}:{3} -v {5}:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest, ssh, log_storage)
+        cmd = "docker run -d --net=mynet --hostname={0} " \
+              "-v {2}:{3} -v {4}:/tmp --cap-add=NET_ADMIN --name={0} {1}".\
+            format(server, image, storage_host, storage_guest, log_storage)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -409,9 +409,9 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         log_storage = config.get('RABBITMQ', 'LOG_LOCATION')
         management = config.get('RABBITMQ', 'MANAGEMENT')
 
-        cmd = "docker run -d -p {4}:22 -p {5}:8000 -p {6}:5672 -p {7}:1883 -p {8}:15672 --net=mynet --hostname={0}" \
-              " -v {2}:{3} -v {9}:/var/log/rabbitmq -v {9}:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest, ssh, http, amqp, mqtt, management, log_storage)
+        cmd = "docker run -d -p {4}:8000 -p {5}:5672 -p {6}:1883 -p {7}:15672 --net=mynet --hostname={0}" \
+              " -v {2}:{3} -v {8}:/var/log/rabbitmq -v {8}:/var/log/supervisor --cap-add=NET_ADMIN --name={0} {1}".\
+            format(server, image, storage_host, storage_guest, http, amqp, mqtt, management, log_storage)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -427,9 +427,9 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         ssh = config.get('TOMCAT', 'SSH')
         http = config.get('TOMCAT', 'HTTP')
         log_storage = config.get('TOMCAT', 'LOG_LOCATION')
-        cmd = "docker run -d -p {4}:22 -p {5}:8080 --net=mynet --hostname={0} -v {2}:{3} -v {6}:/var/log/supervisor" \
+        cmd = "docker run -d -p {4}:8080 --net=mynet --hostname={0} -v {2}:{3} -v {5}:/var/log/supervisor" \
               " --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest, ssh, http, log_storage)
+            format(server, image, storage_host, storage_guest, http, log_storage)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -444,9 +444,9 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     elif server == "catalogue":  # separate data storage needed
         ssh = config.get('CATALOGUE', 'SSH')
         http = config.get('CATALOGUE', 'HTTP')
-        cmd = "docker run -d -p {4}:22 -p {5}:8000 --net=mynet --hostname={0} " \
+        cmd = "docker run -d -p {4}:8000 --net=mynet --hostname={0} " \
               "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest, ssh, http)
+            format(server, image, storage_host, storage_guest, http)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -461,9 +461,9 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     elif server == "ldapd":  # separate data storage needed
         ssh = config.get('LDAP', 'SSH')
         ldap = config.get('LDAP', 'LDAP')
-        cmd = "docker run -d -p {4}:22 -p {5}:8389 --net=mynet --hostname={0} " \
+        cmd = "docker run -d -p {4}:8389 --net=mynet --hostname={0} " \
               "-v {2}:{3} --cap-add=NET_ADMIN --name={0} {1}".\
-            format(server, image, storage_host, storage_guest, ssh, ldap)
+            format(server, image, storage_host, storage_guest, ldap)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -478,8 +478,8 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     elif server == "pushpin":
         ssh = config.get('PUSHPIN', 'SSH')
         https = config.get('PUSHPIN', 'HTTPS')
-        cmd = "docker run -d -p {2}:22 -p {3}:443 --net mynet --hostname={0} --cap-add=NET_ADMIN --name {0} {1}". \
-            format(server, image, ssh, https)
+        cmd = "docker run -d -p {2}:443 --net mynet --hostname={0} --cap-add=NET_ADMIN --name {0} {1}". \
+            format(server, image, https)
 
         try:
             out, err = subprocess_popen(cmd,
@@ -494,8 +494,8 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
     elif server == "elasticsearch":
         ssh = config.get('ELASTICSEARCH', 'SSH')
         kibana = config.get('ELASTICSEARCH', 'KIBANA')
-        cmd = "docker run -d -p {2}:22 -p {3}:5601 --net=mynet " \
-              "--hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image, ssh, kibana)
+        cmd = "docker run -d -p {2}:5601 --net=mynet " \
+              "--hostname={0} --cap-add=NET_ADMIN --name={0} {1}".format(server, image, kibana)
         try:
             out, err = subprocess_popen(cmd,
                                         log_file,
@@ -511,8 +511,8 @@ def create_instance(server, image, log_file, storage_host="", storage_guest="", 
         rtmp = config.get('VIDEOSERVER', 'RTMP')
         hls = config.get('VIDEOSERVER', 'HLS')
         http = config.get('VIDEOSERVER', 'HTTP')
-        cmd = "docker run -d -p {1}:22 -p {2}:1935 -p {3}:8080 -p {4}:8088 --net=mynet --hostname={0} --privileged --cap-add=ALL --name={0} {5}". \
-            format("videoserver", ssh, rtmp, hls, http, image)
+        cmd = "docker run -d -p {1}:1935 -p {2}:8080 -p {3}:8088 --net=mynet --hostname={0} --privileged --cap-add=ALL --name={0} {4}". \
+            format("videoserver", rtmp, hls, http, image)
         try:
             out, err = subprocess_popen(cmd,
                                         log_file,
